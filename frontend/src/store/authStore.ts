@@ -11,18 +11,34 @@ interface AuthState {
   user: () => User | null;
 }
 
+function getStoredSession(): Session | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = localStorage.getItem("ibvap.auth");
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    const session = parsed?.state?.session ?? null;
+    if (session?.token) {
+      setAuthToken(session.token);
+    }
+    return session;
+  } catch {
+    return null;
+  }
+}
+
 export const useAuthStore = create<AuthState>()(
   persist(
     (set, get) => ({
-      session: null,
-      hydrated: false,
+      session: getStoredSession(),
+      hydrated: true,
       setSession: (session) => {
         setAuthToken(session?.token ?? null);
-        set({ session });
+        set({ session, hydrated: true });
       },
       logout: () => {
         setAuthToken(null);
-        set({ session: null });
+        set({ session: null, hydrated: true });
       },
       user: () => get().session?.user ?? null,
     }),

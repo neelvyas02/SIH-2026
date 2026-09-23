@@ -15,6 +15,15 @@ export function ProtectedRoute({ children, allowedRoles }: ProtectedRouteProps) 
   const navigate = useNavigate();
 
   useEffect(() => {
+    if (!hydrated) {
+      const timer = setTimeout(() => {
+        useAuthStore.setState({ hydrated: true });
+      }, 100);
+      return () => clearTimeout(timer);
+    }
+  }, [hydrated]);
+
+  useEffect(() => {
     if (hydrated && !session) {
       navigate({ to: "/login" });
     }
