@@ -1,0 +1,12 @@
+# ByteTrack Multi-Object Tracking Configuration
+tracker:
+  type: "bytetrack"
+  track_thresh: 0.50
+  track_buffer: 30       # Frames to keep lost tracks alive
+  match_thresh: 0.80      # Hungarian assignment threshold
+  min_box_area: 200       # Filter out tiny noise boxes
+  frame_rate: 25
+
+hysteresis:
+  min_dwell_frames: 15    # ~1.2s at 12.5 FPS before intrusion event triggers
+  alert_cooldown_sec: 30  # Suppress duplicate alerts for same track ID

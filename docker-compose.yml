@@ -1,0 +1,81 @@
+version: '3.8'
+
+services:
+  # ============================================================================
+  # 1. PostgreSQL Relational Database
+  # ============================================================================
+  postgres:
+    image: postgres:16-alpine
+    container_name: borderguard_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: borderguard
+      POSTGRES_PASSWORD: borderguard_secret
+      POSTGRES_DB: borderguard_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./database/init.sql:/docker-entrypoint-initdb.d/01_init.sql
+      - ./database/seed_data.sql:/docker-entrypoint-initdb.d/02_seed.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U borderguard -d borderguard_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # ============================================================================
+  # 2. MediaMTX - Local RTSP Live Stream Simulator (Offline Hackathon Protection)
+  # ============================================================================
+  mediamtx:
+    image: bluenviron/mediamtx:latest-ffmpeg
+    container_name: borderguard_mediamtx
+    restart: unless-stopped
+    ports:
+      - "8554:8554"   # RTSP TCP/UDP
+      - "8888:8888"   # HLS Stream
+      - "8889:8889"   # WebRTC Stream
+    volumes:
+      - ./ai-engine/sample_data:/videos:ro
+    environment:
+      MTX_PATHS_ALL_RUNONREADY: "ffmpeg -re -stream_loop -1 -i /videos/border_patrol.mp4 -c copy -f rtsp rtsp://localhost:8554/live/border1"
+
+  # ============================================================================
+  # 3. FastAPI Core Backend & WebSocket Gateway
+  # ============================================================================
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.backend
+    container_name: borderguard_backend
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql+asyncpg://borderguard:borderguard_secret@postgres:5432/borderguard_db
+      SECRET_KEY: super-secret-security-operations-center-key-change-in-production
+      AI_SERVICE_SECRET: ai-engine-internal-hmac-secret-key-987654
+      STORAGE_DIR: /app/storage
+    ports:
+      - "8000:8000"
+    volumes:
+      - shared_storage:/app/storage
+
+  # ============================================================================
+  # 4. React Security Operations Center (SOC) Frontend
+  # ============================================================================
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.frontend
+    container_name: borderguard_frontend
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - "5173:80"
+
+volumes:
+  postgres_data:
+  shared_storage:
