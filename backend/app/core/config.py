@@ -34,6 +34,11 @@ class Settings(BaseSettings):
     # CORS Whitelist
     CORS_ORIGINS: Union[str, List[str]] = "http://localhost:5173,http://localhost:3000,http://127.0.0.1:5173"
 
+    # Supabase Configuration
+    SUPABASE_URL: str = ""
+    SUPABASE_ANON_KEY: str = ""
+    SUPABASE_SERVICE_ROLE_KEY: str = ""
+
     # Roboflow Serverless Cloud API Settings
     ROBOFLOW_API_KEY: str = ""
     ROBOFLOW_MODEL_ID: str = "people-detection-o4rdr-3yyvd/1"
@@ -49,7 +54,11 @@ class Settings(BaseSettings):
             return v
         return ["*"]
 
-    model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
+    model_config = SettingsConfigDict(
+        env_file=(".env", "../.env"),
+        env_file_encoding="utf-8",
+        extra="ignore"
+    )
 
 
 settings = Settings()

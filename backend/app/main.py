@@ -5,6 +5,7 @@ from fastapi.staticfiles import StaticFiles
 from app.core.config import settings
 from app.core.database import init_db
 from app.api.v1.api import api_router
+from app.api.health import router as health_router
 from app.api.websockets.alert_stream import ws_manager
 import logging
 
@@ -17,13 +18,17 @@ logger = logging.getLogger("borderguard.main")
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """Application lifecycle management: initializes database and pre-seeds data."""
+    """Application lifecycle management: initializes local database if using sqlite."""
     logger.info(f"Starting {settings.PROJECT_NAME} in {settings.ENVIRONMENT} mode...")
     try:
-        await init_db()
-        logger.info("Database schema initialized successfully.")
+        # Protect remote/Supabase PostgreSQL databases: never auto-drop or auto-create remote tables
+        if "sqlite" in (settings.DATABASE_URL or "").lower():
+            await init_db()
+            logger.info("Local SQLite database schema initialized successfully.")
+        else:
+            logger.info("Remote PostgreSQL database detected. Skipping local schema creation and seed routines.")
     except Exception as e:
-        logger.error(f"Error initializing database: {e}")
+        logger.error(f"Database startup check: {e}")
     yield
     logger.info(f"Shutting down {settings.PROJECT_NAME}...")
 
@@ -47,6 +52,9 @@ app.add_middleware(
 
 # Mount Static Storage for Evidence Snapshots & Clips
 app.mount("/static/evidence", StaticFiles(directory=settings.STORAGE_DIR), name="evidence")
+
+# Include Health & Diagnostics Router (/api/health, /api/health/db)
+app.include_router(health_router, prefix="/api")
 
 # Include REST API Routers
 app.include_router(api_router, prefix=settings.API_V1_STR)

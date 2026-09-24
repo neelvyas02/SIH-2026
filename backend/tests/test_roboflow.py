@@ -18,13 +18,15 @@ def test_roboflow_service_unconfigured():
 
 def test_roboflow_service_header_auth_initialization():
     """Verify that InferenceHTTPClient is initialized with header-based authorization."""
-    with patch("inference_sdk.InferenceHTTPClient") as mock_client_cls, \
-         patch("inference_sdk.InferenceConfiguration") as mock_config_cls:
-        
-        mock_instance = MagicMock()
-        mock_client_cls.return_value = mock_instance
-        mock_instance.configure.return_value = mock_instance
-        
+    mock_sdk = MagicMock()
+    mock_client_cls = mock_sdk.InferenceHTTPClient
+    mock_config_cls = mock_sdk.InferenceConfiguration
+    
+    mock_instance = MagicMock()
+    mock_client_cls.return_value = mock_instance
+    mock_instance.configure.return_value = mock_instance
+    
+    with patch.dict("sys.modules", {"inference_sdk": mock_sdk}):
         service = RoboflowService(
             model_id="people-detection-o4rdr-3yyvd/1",
             api_key="test_dummy_key_12345",

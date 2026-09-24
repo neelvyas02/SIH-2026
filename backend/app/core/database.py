@@ -6,12 +6,24 @@ import logging
 
 logger = logging.getLogger("borderguard.database")
 
-# Create asynchronous engine
+# Resolve database URL (fallback to local SQLite if empty)
+db_url = settings.DATABASE_URL.strip() if settings.DATABASE_URL and settings.DATABASE_URL.strip() else "sqlite+aiosqlite:///./borderguard.db"
+
+# Normalize postgresql:// or postgres:// to async driver postgresql+asyncpg://
+if db_url.startswith("postgresql://"):
+    db_url = db_url.replace("postgresql://", "postgresql+asyncpg://", 1)
+elif db_url.startswith("postgres://"):
+    db_url = db_url.replace("postgres://", "postgresql+asyncpg://", 1)
+
 # SQLite needs connect_args check_same_thread=False
-connect_args = {"check_same_thread": False} if "sqlite" in settings.DATABASE_URL else {}
+connect_args = {}
+if "sqlite" in db_url:
+    connect_args["check_same_thread"] = False
+elif "supabase.co" in db_url or "pooler.supabase.com" in db_url:
+    connect_args["ssl"] = "require"
 
 engine = create_async_engine(
-    settings.DATABASE_URL,
+    db_url,
     echo=False,
     future=True,
     connect_args=connect_args
