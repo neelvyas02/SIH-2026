@@ -1,6 +1,6 @@
 from typing import List, Dict, Optional
 import numpy as np
-from app_compat import Detection if False else None  # type checking placeholder
+# type checking placeholder
 import logging
 
 logger = logging.getLogger("borderguard.tracker")

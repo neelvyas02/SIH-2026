@@ -1,19 +1,25 @@
-# YOLO Detection Configuration
+# YOLO & Thermal Detection Configuration
 model:
-  name: "yolov8n.pt"
+  name: "models/best.pt"
   input_size: 640
-  device: "auto" # 'cuda', 'cpu', or 'auto'
-  half: true     # FP16 inference on GPU
+  device: "cuda"  # NVIDIA RTX 4070 GPU acceleration
+  half: true      # FP16 Tensor Core acceleration
 
 thresholds:
-  confidence: 0.50
+  confidence: 0.35
   iou: 0.45
 
+thermal_preprocessing:
+  enable_clahe: true
+  clip_limit: 2.0
+  tile_grid_size: [8, 8]
+
 classes:
-  allowed_ids: [0, 2, 5, 7, 16] # 0: person, 2: car, 5: bus, 7: truck, 16: dog
+  allowed_ids: [0, 1, 2, 3, 5, 7]
   class_mapping:
-    0: "person"
+    0: "gun"
+    1: "person"
     2: "vehicle"
+    3: "armed_person"
     5: "vehicle"
     7: "vehicle"
-    16: "animal"

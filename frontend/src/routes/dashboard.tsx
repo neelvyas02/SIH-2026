@@ -17,6 +17,7 @@ import {
   Radio,
   ArrowRight,
   Flame,
+  Cpu,
 } from "lucide-react";
 import { cameraService } from "@/services/cameraService";
 import { alertService } from "@/services/alertService";
@@ -129,6 +130,36 @@ function DashboardPage() {
               <ArrowRight className="w-3.5 h-3.5" />
             </button>
           </div>
+        </div>
+
+        {/* AI Sentinel Engine Quick Launcher Banner */}
+        <div className="p-3.5 rounded-lg border border-primary/40 bg-primary/10 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-md shadow-primary/5">
+          <div className="flex items-center gap-3">
+            <div className="p-2 rounded bg-primary/20 border border-primary/40 text-primary shrink-0">
+              <Cpu className="w-5 h-5" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-mono font-bold uppercase text-primary tracking-wider">
+                  AI SENTINEL ENGINE CONSOLE · ZERO-TERMINAL WEB RUNNER
+                </span>
+                <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-online/20 text-online border border-online/30 font-semibold">
+                  LIVE INFERENCE
+                </span>
+              </div>
+              <p className="text-xs text-foreground mt-0.5">
+                Run YOLO threat detection (weapons, keypoint wrist grasps, IFF camouflage) on Webcam, YouTube, RTSP, or Uploaded Video without opening a terminal.
+              </p>
+            </div>
+          </div>
+
+          <button
+            onClick={() => navigate({ to: "/ai-engine" })}
+            className="px-3.5 py-2 rounded-lg bg-primary text-primary-foreground font-mono text-xs font-bold hover:bg-primary/90 flex items-center justify-center gap-1.5 transition-all shadow-md shadow-primary/20 shrink-0 cursor-pointer"
+          >
+            <span>Launch Sentinel Console</span>
+            <ArrowRight className="w-3.5 h-3.5" />
+          </button>
         </div>
 
         {/* 8 Operational KPI Cards */}

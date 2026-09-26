@@ -83,12 +83,21 @@ storage/snapshots/*
 storage/clips/*
 !storage/clips/.gitkeep
 
-# Large AI model weight checkpoints (>100MB) and training runs
+# AI model weight binary checkpoints (*.pt, *.pth, *.onnx) - keep only core best.pt
 ai-engine/models/*.onnx
 ai-engine/models/*.engine
-ai-engine/models/*_large.pt
+ai-engine/models/*.pth
+ai-engine/models/*.pt
+!ai-engine/models/best.pt
+backend/*.pt
+*.pt
+!yolov8n.pt
+ai-engine/models/rf_detr_large/
+ai-engine/models/videomae_violence/
 runs/
 **/runs/
+scratch/
+**/scratch/
 *.part
 *.zip
 Dataset/

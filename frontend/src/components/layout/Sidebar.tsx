@@ -27,6 +27,7 @@ import {
   ChevronRight,
   Shield,
   Layers,
+  Cpu,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -63,6 +64,7 @@ export function Sidebar() {
     {
       title: "AI Detection Engine",
       items: [
+        { label: "AI Sentinel Engine", to: "/ai-engine", icon: Cpu, badge: "RUN" },
         { label: "Human Detection", to: "/detections/human", icon: Users },
         { label: "Vehicle Detection", to: "/detections/vehicle", icon: Car },
         {
